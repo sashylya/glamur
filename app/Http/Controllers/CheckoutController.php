@@ -66,7 +66,7 @@ class CheckoutController extends Controller
             // Создаем заказ
             $order = Order::create([
                 'user_id' => Auth::id(),
-                'status' => Order::STATUS_NEW,
+                $orderNumber = 'ORD-' . strtoupper(uniqid()),
                 'total_amount' => $cart->total,
                 'first_name' => $data['first_name'],
                 'last_name' => $data['last_name'],
