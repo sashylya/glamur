@@ -8,14 +8,11 @@ use Illuminate\Http\Request;
 
 class OrderController extends Controller
 {
-    /**
-     * Список всех заказов
-     */
     public function index(Request $request)
     {
         $query = Order::with('user')->orderByDesc('created_at');
         
-        // Поиск по номеру заказа или email
+        // Поиск
         if ($request->has('search') && $request->search != '') {
             $search = $request->search;
             $query->where(function($q) use ($search) {
@@ -53,18 +50,12 @@ class OrderController extends Controller
         return view('admin.orders.index', compact('orders'));
     }
     
-    /**
-     * Просмотр деталей заказа
-     */
     public function show(Order $order)
     {
         $order->load('items');
         return view('admin.orders.show', compact('order'));
     }
     
-    /**
-     * Обновление статуса заказа
-     */
     public function updateStatus(Request $request, Order $order)
     {
         $request->validate([

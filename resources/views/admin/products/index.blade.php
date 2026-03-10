@@ -88,8 +88,4 @@
         @endforelse
     </tbody>
 </table>
-
-<div class="pagination">
-    {{ $products->links() }}
-</div>
 @endsection

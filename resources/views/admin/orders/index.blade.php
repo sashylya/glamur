@@ -50,10 +50,11 @@
                 </td>
                 <td>{{ number_format($order->total_amount, 0, '.', ' ') }} ₽</td>
                 <td>
-                    <form method="POST" action="{{ route('admin.orders.status', $order) }}" class="status-form">
+                    <form method="POST" action="{{ route('admin.orders.status', $order) }}" id="status-form-{{ $order->id }}">
                         @csrf
                         @method('PATCH')
-                        <select name="status" onchange="this.form.submit()" class="status-select status-{{ $order->status }}">
+                        <select name="status" onchange="document.getElementById('status-form-{{ $order->id }}').submit()" 
+                                class="status-select status-{{ $order->status }}">
                             <option value="new" {{ $order->status == 'new' ? 'selected' : '' }}>Новый</option>
                             <option value="processing" {{ $order->status == 'processing' ? 'selected' : '' }}>В обработке</option>
                             <option value="completed" {{ $order->status == 'completed' ? 'selected' : '' }}>Выполнен</option>
@@ -61,8 +62,8 @@
                         </select>
                     </form>
                 </td>
-                <td class="actions">
-                    <a href="{{ route('admin.orders.show', $order) }}" class="btn-muted">👁️ Просмотр</a>
+                <td>
+                    <a href="{{ route('admin.orders.show', $order) }}" class="btn-muted">Просмотр</a>
                 </td>
             </tr>
         @empty

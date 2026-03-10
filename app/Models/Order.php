@@ -30,6 +30,18 @@ class Order extends Model
     const STATUS_COMPLETED = 'completed';
     const STATUS_CANCELLED = 'cancelled';
 
+    public function getStatusNameAttribute()
+{
+    $statuses = [
+        'new' => 'Новый',
+        'processing' => 'В обработке',
+        'completed' => 'Выполнен',
+        'cancelled' => 'Отменен',
+    ];
+    
+    return $statuses[$this->status] ?? $this->status;
+}
+
     /**
      * @return BelongsTo|User
      */
