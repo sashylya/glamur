@@ -9,14 +9,9 @@
     <div class="profile-grid">
         <div class="profile-sidebar">
             <div class="profile-menu">
-                <a href="{{ route('profile.index') }}" class="active">Профиль</a>
-                <a href="{{ route('profile.orders') }}">Мои заказы</a>
-                <a href="{{ route('profile.edit') }}">Редактировать профиль</a>
-                <a href="{{ route('wishlist.index') }}" class="{{ request()->routeIs('wishlist.index') ? 'active' : '' }}">Избранное</a>
-
-                @if(Auth::user()->wishlists->isNotEmpty())
-                    <a href="{{ route('wishlist.index') }}">Избранное</a>
-                @endif
+                <a href="{{ route('profile.index') }}" class="{{ request()->routeIs('profile.index') ? 'active' : '' }}">Профиль</a>
+                <a href="{{ route('profile.orders') }}" class="{{ request()->routeIs('profile.orders') ? 'active' : '' }}">Мои заказы</a>
+                <a href="{{ route('profile.edit') }}" class="{{ request()->routeIs('profile.edit') ? 'active' : '' }}">Редактировать профиль</a>
             </div>
         </div>
 
@@ -60,11 +55,28 @@
                     
                     <div class="orders-list">
                         @foreach($user->orders->take(3) as $order)
+                            @php
+                                $statuses = [
+                                    'pending' => 'В обработке',
+                                    'processing' => 'В обработке',
+                                    'confirmed' => 'Подтвержден',
+                                    'shipped' => 'Отправлен',
+                                    'delivered' => 'Доставлен',
+                                    'completed' => 'Завершен',
+                                    'cancelled' => 'Отменен',
+                                    'refunded' => 'Возврат',
+                                    'failed' => 'Ошибка',
+                                    'new' => 'Новый',
+                                    'paid' => 'Оплачен',
+                                    'awaiting_payment' => 'Ожидает оплаты'
+                                ];
+                                $statusText = $statuses[$order->status] ?? $order->status;
+                            @endphp
                             <div class="order-item">
                                 <div class="order-header">
-                                    <span class="order-number">Заказ #{{ $order->order_number }}</span>
+                                    <span class="order-number">Заказ #{{ $order->order_number ?? $order->id }}</span>
                                     <span class="order-date">{{ $order->created_at->format('d.m.Y') }}</span>
-                                    <span class="order-status">{{ $order->status }}</span>
+                                    <span class="order-status">{{ $statusText }}</span>
                                     <span class="order-total">{{ number_format($order->total_amount, 0, '.', ' ') }} руб.</span>
                                 </div>
                                 <a href="{{ route('profile.order', $order) }}" class="btn-muted">Подробнее</a>

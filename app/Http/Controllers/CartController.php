@@ -46,6 +46,18 @@ class CartController extends Controller
             ]);
         }
 
+        if ($request->ajax() || $request->wantsJson()) {
+            $cart = $this->getCart();
+            return response()->json([
+                'success' => true,
+                'message' => 'Товар добавлен в корзину',
+                'cartCount' => $cart->items->sum('quantity'),
+                'cartTotal' => $cart->items->sum(function($item) {
+                    return $item->product->price * $item->quantity;
+                })
+            ]);
+        }
+
         return redirect()->route('cart.index')->with('success', 'Товар добавлен в корзину');
     }
 
@@ -64,13 +76,50 @@ class CartController extends Controller
             $item->update(['quantity' => $request->quantity]);
         }
 
+        // Пересчитываем корзину
+        $cart = $this->getCart();
+        $cartTotal = $cart->items->sum(function($item) {
+            return $item->product->price * $item->quantity;
+        });
+        $cartCount = $cart->items->sum('quantity');
+
+        // Если запрос AJAX
+        if ($request->ajax() || $request->wantsJson()) {
+            return response()->json([
+                'success' => true,
+                'message' => 'Количество обновлено',
+                'itemTotal' => $item->exists ? ($item->product->price * $item->quantity) : 0,
+                'cartCount' => $cartCount,
+                'cartTotal' => $cartTotal
+            ]);
+        }
+
         return redirect()->route('cart.index')->with('success', 'Корзина обновлена');
     }
 
-    public function destroy($itemId)
+    public function destroy(Request $request, $itemId)
     {
         $cart = $this->getCart();
-        $cart->items()->findOrFail($itemId)->delete();
+        $item = $cart->items()->findOrFail($itemId);
+        $item->delete();
+
+        // Пересчитываем корзину после удаления
+        $cart = $this->getCart();
+        $cartTotal = $cart->items->sum(function($item) {
+            return $item->product->price * $item->quantity;
+        });
+        $cartCount = $cart->items->sum('quantity');
+
+        // Если запрос AJAX
+        if ($request->ajax() || $request->wantsJson()) {
+            return response()->json([
+                'success' => true,
+                'message' => 'Товар удален из корзины',
+                'cartCount' => $cartCount,
+                'cartTotal' => $cartTotal,
+                'isEmpty' => $cartCount === 0
+            ]);
+        }
 
         return redirect()->route('cart.index')->with('success', 'Товар удален из корзины');
     }
