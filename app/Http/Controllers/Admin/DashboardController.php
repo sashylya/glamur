@@ -7,6 +7,7 @@ use App\Models\Order;
 use App\Models\Product;
 use App\Models\User;
 use Illuminate\Http\Request;
+use App\Models\Review;
 
 class DashboardController extends Controller
 {
@@ -17,6 +18,7 @@ class DashboardController extends Controller
         $totalOrders = Order::count();
         $totalUsers = User::count();
         $totalRevenue = Order::where('status', 'completed')->sum('total_amount');
+        $pendingReviews = Review::where('is_approved', false)->count();
         
         // Последние заказы
         $recentOrders = Order::with('user')
@@ -36,7 +38,8 @@ class DashboardController extends Controller
             'totalUsers',
             'totalRevenue',
             'recentOrders',
-            'lowStockProducts'
+            'lowStockProducts',
+            'pendingReviews'
         ));
     }
 }

@@ -9,14 +9,14 @@ use App\Http\Controllers\ProfileController;
 use App\Http\Controllers\WishlistController;
 use App\Http\Controllers\AuthController;
 use App\Http\Controllers\PageController;
-use App\Http\Controllers\ReviewController; // ДОБАВЬТЕ ЭТУ СТРОКУ
+use App\Http\Controllers\ReviewController; // Только ОДИН импорт для обычного контроллера
 
 // Импорты для админ-панели
 use App\Http\Controllers\Admin\DashboardController;
 use App\Http\Controllers\Admin\OrderController;
 use App\Http\Controllers\Admin\ProductController;
-use App\Http\Controllers\Admin\CategoryController; 
-
+use App\Http\Controllers\Admin\CategoryController;
+// use App\Http\Controllers\Admin\ReviewController; // НЕ ИМПОРТИРУЙТЕ ЭТОТ!
 
 // Главная
 Route::get('/', [HomeController::class, 'index'])->name('home');
@@ -25,7 +25,7 @@ Route::get('/', [HomeController::class, 'index'])->name('home');
 Route::prefix('catalog')->name('catalog.')->group(function () {
     Route::get('/', [CatalogController::class, 'index'])->name('index');
     Route::get('/category/{category}', [CatalogController::class, 'category'])->name('category');
-    Route::get('/{product:slug}', [CatalogController::class, 'show'])->name('show');
+    Route::get('/{product:slug}', [CatalogController::class, 'show'])->name('show'); 
 });
 
 // Корзина
@@ -70,7 +70,7 @@ Route::middleware('auth')->group(function () {
     Route::delete('/wishlist/{product}', [WishlistController::class, 'destroy'])->name('wishlist.remove');
 });
 
-// Отзывы
+// Отзывы (для пользователей)
 Route::get('/products/{product}/reviews', [ReviewController::class, 'index'])->name('reviews.index');
 Route::middleware('auth')->group(function () {
     Route::post('/products/{product}/reviews', [ReviewController::class, 'store'])->name('reviews.store');
@@ -92,4 +92,9 @@ Route::prefix('admin')->name('admin.')->middleware(['auth', 'admin'])->group(fun
     
     // Категории
     Route::resource('categories', CategoryController::class)->except(['show']);
+    
+    // ОТЗЫВЫ - используем полное имя класса с обратным слешем
+    Route::get('/reviews', [\App\Http\Controllers\Admin\ReviewController::class, 'index'])->name('reviews.index');
+    Route::patch('/reviews/{review}/approve', [\App\Http\Controllers\Admin\ReviewController::class, 'approve'])->name('reviews.approve');
+    Route::delete('/reviews/{review}/reject', [\App\Http\Controllers\Admin\ReviewController::class, 'reject'])->name('reviews.reject');
 });

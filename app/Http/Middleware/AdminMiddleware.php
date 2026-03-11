@@ -14,6 +14,6 @@ class AdminMiddleware
             return $next($request);
         }
 
-        return redirect()->route('home')->with('error', 'Доступ запрещен');
+        abort(403, 'Доступ запрещен');
     }
 }

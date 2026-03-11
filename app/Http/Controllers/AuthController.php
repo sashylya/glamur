@@ -23,7 +23,10 @@ class AuthController extends Controller
 
         if (Auth::attempt($credentials, $request->boolean('remember'))) {
             $request->session()->regenerate();
-            return redirect()->intended(route('home'));
+            
+            // Редирект на запрошенную страницу или на главную
+            $redirect = $request->input('redirect', route('home'));
+            return redirect($redirect)->with('success', 'Вы успешно вошли');
         }
 
         return back()->withErrors([
@@ -54,7 +57,9 @@ class AuthController extends Controller
 
         Auth::login($user);
 
-        return redirect()->route('home');
+        // Редирект на запрошенную страницу или на главную
+        $redirect = $request->input('redirect', route('home'));
+        return redirect($redirect)->with('success', 'Регистрация успешна');
     }
 
     public function logout(Request $request)

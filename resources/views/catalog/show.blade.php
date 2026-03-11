@@ -17,6 +17,80 @@
         @endif
     </div>
 
+    <style>
+        .quantity-selector {
+    margin: 20px 0;
+}
+
+.quantity-selector label {
+    display: block;
+    margin-bottom: 8px;
+    font-weight: 500;
+}
+
+.quantity-controls {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+
+.quantity-btn {
+    width: 40px;
+    height: 40px;
+    background: #f5f5f5;
+    border: 1px solid #ddd;
+    border-radius: 4px;
+    font-size: 20px;
+    font-weight: bold;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: all 0.2s;
+}
+
+.quantity-btn:hover {
+    background: #e0e0e0;
+    border-color: #999;
+}
+
+.quantity-btn:active {
+    background: #ccc;
+    transform: scale(0.95);
+}
+
+.quantity-input {
+    width: 60px;
+    height: 40px;
+    text-align: center;
+    border: 1px solid #ddd;
+    border-radius: 4px;
+    font-size: 16px;
+    font-weight: 500;
+    background-color: #fff;
+    -moz-appearance: textfield;
+}
+
+.quantity-input::-webkit-outer-spin-button,
+.quantity-input::-webkit-inner-spin-button {
+    -webkit-appearance: none;
+    margin: 0;
+}
+
+.add-to-cart-form {
+    margin: 20px 0;
+}
+
+.btn {
+    padding: 12px 30px;
+    font-size: 16px;
+}
+
+.wishlist-form {
+    margin-top: 10px;
+}
+    </style>
+
     <!-- Информация о товаре -->
     <div class="product-info">
         <h1>{{ $product->name }}</h1>
@@ -24,7 +98,7 @@
         
         <div class="availability">
             @if($product->stock > 0)
-                <span class="in-stock">В наличии: {{ $product->stock }} шт.</span>
+                <span class="in-stock">В наличии: <span id="stock-count">{{ $product->stock }}</span> шт.</span>
             @else
                 <span class="out-of-stock">Нет в наличии</span>
             @endif
@@ -68,18 +142,38 @@
         </div>
 
         @if($product->stock > 0)
-            <form action="{{ route('cart.add', $product) }}" method="POST" class="add-to-cart-form">
-                @csrf
-                <div class="quantity-selector">
-                    <label for="quantity">Количество:</label>
-                    <input type="number" name="quantity" id="quantity" value="1" min="1" max="{{ $product->stock }}">
+            @auth
+                {{-- Авторизован: показываем форму добавления в корзину --}}
+                <form action="{{ route('cart.add', $product) }}" method="POST" class="add-to-cart-form">
+                    @csrf
+                    <div class="quantity-selector">
+                        <label for="quantity">Количество:</label>
+                        <div class="quantity-controls">
+                            <button type="button" class="quantity-btn minus" onclick="decrementQuantity()">-</button>
+                            <input type="number" 
+                                   name="quantity" 
+                                   id="quantity" 
+                                   value="1" 
+                                   min="1" 
+                                   max="{{ $product->stock }}"
+                                   class="quantity-input"
+                                   readonly>
+                            <button type="button" class="quantity-btn plus" onclick="incrementQuantity()">+</button>
+                        </div>
+                    </div>
+                    <button type="submit" class="btn">Добавить в корзину</button>
+                </form>
+            @else
+                {{-- НЕ АВТОРИЗОВАН: простая строка с двумя кнопками --}}
+                <div style="margin: 20px 0;">
+                    <a href="{{ route('login') }}?redirect={{ urlencode(request()->fullUrl()) }}" class="btn" style="margin-right: 10px;">Войти</a>
+                    <a href="{{ route('register') }}?redirect={{ urlencode(request()->fullUrl()) }}" class="btn-muted">Регистрация</a>
                 </div>
-                <button type="submit" class="btn">Добавить в корзину</button>
-            </form>
+            @endauth
         @endif
 
         @auth
-            <form action="{{ route('wishlist.add', $product) }}" method="POST">
+            <form action="{{ route('wishlist.add', $product) }}" method="POST" class="wishlist-form">
                 @csrf
                 <button type="submit" class="btn-muted">♥ В избранное</button>
             </form>
@@ -109,8 +203,13 @@
         @endphp
         
         @if(!$userReview)
-            <div class="add-review">
-                <h3>Оставить отзыв</h3>
+    <div class="add-review">
+        <h3>Оставить отзыв</h3>
+        
+        {{-- СООБЩЕНИЕ О МОДЕРАЦИИ --}}
+        <div class="moderation-info" style="background: #fff3cd; color: #856404; padding: 10px; border-radius: 4px; margin-bottom: 15px; font-size: 14px;">
+            ⚡ Отзывы проходят модерацию и появятся после проверки администратором
+        </div>
                 <form action="{{ route('reviews.store', $product) }}" method="POST" class="review-form">
                     @csrf
                     
@@ -192,7 +291,14 @@
                         {{ $review->comment }}
                     </div>
                 @endif
+
+                @if($review->user_id == Auth::id() && !$review->is_approved)
+    <div style="background: #e2e3e5; color: #383d41; padding: 8px; border-radius: 4px; margin-bottom: 10px; font-size: 13px;">
+        ⏳ Ваш отзыв ожидает проверки модератора
+    </div>
+@endif
                 
+
                 @can('update', $review)
                     <div class="review-actions">
                         <button class="btn-muted edit-review" data-review-id="{{ $review->id }}">Редактировать</button>
@@ -227,4 +333,32 @@
     </div>
 </section>
 @endif
+
 @endsection
+
+@push('scripts')
+<script>
+const maxStock = {{ $product->stock }};
+const quantityInput = document.getElementById('quantity');
+
+function incrementQuantity() {
+    let currentValue = parseInt(quantityInput.value) || 1;
+    if (currentValue < maxStock) {
+        quantityInput.value = currentValue + 1;
+    }
+}
+
+function decrementQuantity() {
+    let currentValue = parseInt(quantityInput.value) || 1;
+    if (currentValue > 1) {
+        quantityInput.value = currentValue - 1;
+    }
+}
+
+// Блокируем ввод с клавиатуры (только через кнопки)
+quantityInput.addEventListener('keydown', function(e) {
+    e.preventDefault();
+    return false;
+});
+</script>
+@endpush

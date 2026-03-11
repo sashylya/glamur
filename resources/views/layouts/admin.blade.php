@@ -30,6 +30,9 @@
                     <li class="{{ request()->routeIs('admin.orders.*') ? 'active' : '' }}">
                         <a href="{{ route('admin.orders.index') }}">📋 Заказы</a>
                     </li>
+                    <li class="{{ request()->routeIs('admin.reviews.*') ? 'active' : '' }}">
+                        <a href="{{ route('admin.reviews.index') }}">⭐ Отзывы</a>
+                    </li>
                 </ul>
             </nav>
             

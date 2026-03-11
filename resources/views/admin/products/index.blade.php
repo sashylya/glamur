@@ -33,59 +33,64 @@
     </form>
 </div>
 
-<table class="admin-table">
-    <thead>
-        <tr>
-            <th>ID</th>
-            <th>Изображение</th>
-            <th>Название</th>
-            <th>Категория</th>
-            <th>Цена</th>
-            <th>Остаток</th>
-            <th>Популярность</th>
-            <th>Новинка</th>
-            <th>Действия</th>
-        </tr>
-    </thead>
-    <tbody>
-        @forelse($products as $product)
-            <tr>
-                <td>{{ $product->id }}</td>
-                <td>
-                    <img src="{{ asset($product->mainImage()) }}" alt="" class="admin-thumb">
-                </td>
-                <td>{{ $product->name }}</td>
-                <td>{{ $product->category->name ?? 'Без категории' }}</td>
-                <td>{{ number_format($product->price, 0, '.', ' ') }} ₽</td>
-                <td>
-                    @if($product->stock > 5)
-                        <span class="stock-ok">{{ $product->stock }}</span>
-                    @elseif($product->stock > 0)
-                        <span class="stock-low">{{ $product->stock }}</span>
-                    @else
-                        <span class="stock-out">Нет</span>
-                    @endif
-                </td>
-                <td>{{ $product->popularity }}</td>
-                <td>
-                    @if($product->is_new)
-                        <span class="badge-new">Новинка</span>
-                    @endif
-                </td>
-                <td class="actions">
-                    <a href="{{ route('admin.products.edit', $product) }}" class="btn-muted">✏️</a>
-                    <form action="{{ route('admin.products.destroy', $product) }}" method="POST" class="inline-form">
-                        @csrf
-                        @method('DELETE')
-                        <button type="submit" class="btn-muted" onclick="return confirm('Удалить товар?')">🗑️</button>
-                    </form>
-                </td>
+<!-- Таблица товаров -->
+<div style="background: #1d1e27; border-radius: 12px; box-shadow: 0 2px 8px rgba(0,0,0,0.1); overflow-x: auto;">
+    <table style="width: 100%; border-collapse: collapse;">
+        <thead>
+            <tr style="background: #2b2d39; border-bottom: 2px solid #e0e0e0;">
+                <th style="padding: 15px; text-align: left; color: #666; font-weight: 500;">ID</th>
+                <th style="padding: 15px; text-align: left; color: #666; font-weight: 500;">Фото</th>
+                <th style="padding: 15px; text-align: left; color: #666; font-weight: 500;">Название</th>
+                <th style="padding: 15px; text-align: left; color: #666; font-weight: 500;">Категория</th>
+                <th style="padding: 15px; text-align: left; color: #666; font-weight: 500;">Цена</th>
+                <th style="padding: 15px; text-align: left; color: #666; font-weight: 500;">Остаток</th>
+                <th style="padding: 15px; text-align: left; color: #666; font-weight: 500;">Популярность</th>
+                <th style="padding: 15px; text-align: left; color: #666; font-weight: 500;">Новинка</th>
+                <th style="padding: 15px; text-align: left; color: #666; font-weight: 500;">Действия</th>
             </tr>
-        @empty
-            <tr>
-                <td colspan="9">Товары не найдены</td>
-            </tr>
-        @endforelse
-    </tbody>
-</table>
+        </thead>
+        <tbody>
+            @forelse($products as $product)
+                <tr style="border-bottom: 1px solid #f0f0f0;">
+                    <td style="padding: 15px;">{{ $product->id }}</td>
+                    <td style="padding: 15px;">
+                        <img src="{{ asset($product->mainImage()) }}" alt="" style="width: 50px; height: 50px; object-fit: cover; border-radius: 6px;">
+                    </td>
+                    <td style="padding: 15px; font-weight: 500;">{{ $product->name }}</td>
+                    <td style="padding: 15px; color: #666;">{{ $product->category->name ?? '—' }}</td>
+                    <td style="padding: 15px; font-weight: 500;">{{ number_format($product->price, 0, '.', ' ') }} ₽</td>
+                    <td style="padding: 15px;">
+                        @if($product->stock > 5)
+                            <span style="color: #28a745;">{{ $product->stock }}</span>
+                        @elseif($product->stock > 0)
+                            <span style="color: #ffc107;">{{ $product->stock }}</span>
+                        @else
+                            <span style="color: #dc3545;">Нет</span>
+                        @endif
+                    </td>
+                    <td style="padding: 15px;">{{ $product->popularity }}</td>
+                    <td style="padding: 15px;">
+                        @if($product->is_new)
+                            <span style="background: #667eea; color: white; padding: 4px 8px; border-radius: 4px; font-size: 11px;">NEW</span>
+                        @endif
+                    </td>
+                    <td style="padding: 15px;">
+                        <div style="display: flex; gap: 8px;">
+                            <a href="{{ route('admin.products.edit', $product) }}" style="color: #667eea; text-decoration: none;">✏️</a>
+                            <form action="{{ route('admin.products.destroy', $product) }}" method="POST" style="display: inline;">
+                                @csrf
+                                @method('DELETE')
+                                <button type="submit" style="color: #dc3545; border: none; background: none; cursor: pointer;" onclick="return confirm('Удалить товар?')">🗑️</button>
+                            </form>
+                        </div>
+                    </td>
+                </tr>
+            @empty
+                <tr>
+                    <td colspan="9" style="padding: 40px; text-align: center; color: #999;">Товары не найдены</td>
+                </tr>
+            @endforelse
+        </tbody>
+    </table>
+</div>
 @endsection

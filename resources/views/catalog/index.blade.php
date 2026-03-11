@@ -8,6 +8,16 @@
     <aside class="filters">
         <h2>Фильтры</h2>
         <form method="GET" action="{{ route('catalog.index') }}">
+            <!-- ПОИСК -->
+            <div class="filter-group">
+                <h3>Поиск</h3>
+                <input type="text" 
+                       name="search" 
+                       placeholder="Поиск по названию или артикулу..." 
+                       value="{{ request('search') }}"
+                       style="width: 100%; padding: 8px; border: 1px solid #ddd; border-radius: 4px;">
+            </div>
+
             <!-- Категории -->
             <div class="filter-group">
                 <h3>Категории</h3>
@@ -53,10 +63,18 @@
         <div class="catalog-header">
             <h1>Каталог украшений</h1>
             
+            @if(request('search'))
+                <div style="font-size: 14px; color: #666; margin: 5px 0;">
+                    Результаты поиска: "{{ request('search') }}"
+                </div>
+            @endif
+            
             <!-- Сортировка -->
             <form method="GET" action="{{ route('catalog.index') }}" class="order-form">
                 @foreach(request()->except('sort') as $key => $value)
-                    <input type="hidden" name="{{ $key }}" value="{{ $value }}">
+                    @if($key != 'page')
+                        <input type="hidden" name="{{ $key }}" value="{{ $value }}">
+                    @endif
                 @endforeach
                 
                 <select name="sort" onchange="this.form.submit()">
@@ -77,12 +95,22 @@
                     <h3><a href="{{ route('catalog.show', $product) }}">{{ $product->name }}</a></h3>
                     <p class="price">{{ number_format($product->price, 0, '.', ' ') }} руб.</p>
                     
+                    <div style="font-size: 12px; color: #999; margin-bottom: 10px;">
+                        Артикул: {{ $product->sku }}
+                    </div>
+                    
                     <div class="card-actions">
-                        <form action="{{ route('cart.add', $product) }}" method="POST">
-                            @csrf
-                            <input type="hidden" name="quantity" value="1">
-                            <button type="submit" class="btn">В корзину</button>
-                        </form>
+                        @auth
+                            {{-- Авторизован: кнопка добавляет в корзину --}}
+                            <form action="{{ route('cart.add', $product) }}" method="POST">
+                                @csrf
+                                <input type="hidden" name="quantity" value="1">
+                                <button type="submit" class="btn">В корзину</button>
+                            </form>
+                        @else
+                            {{-- Не авторизован: кнопка ведет на страницу входа --}}
+                            <a href="{{ route('login') }}?redirect={{ urlencode(request()->fullUrl()) }}" class="btn">Войти для покупки</a>
+                        @endauth
                         
                         @auth
                             <form action="{{ route('wishlist.add', $product) }}" method="POST">
@@ -94,8 +122,13 @@
                 </article>
             @empty
                 <p>Товары не найдены</p>
+                @if(request('search') || request('category') || request('min_price') || request('max_price') || request('material'))
+                    <p><a href="{{ route('catalog.index') }}" class="btn-muted">Сбросить все фильтры</a></p>
+                @endif
             @endforelse
         </div>
+        
+        
     </div>
 </div>
 @endsection

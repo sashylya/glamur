@@ -15,9 +15,6 @@ class WishlistController extends BaseController
         $this->middleware('auth');
     }
 
-    /**
-     * Показать список избранного
-     */
     public function index()
     {
         /** @var User $user */
@@ -27,30 +24,48 @@ class WishlistController extends BaseController
         return view('wishlist.index', compact('wishlist'));
     }
 
-    /**
-     * Добавить товар в избранное
-     */
-    public function store(Product $product)
-    {
-        /** @var User $user */
-        $user = Auth::user();
-        
-        if (!$user->wishlists()->where('product_id', $product->id)->exists()) {
-            $user->wishlists()->create(['product_id' => $product->id]);
-            return back()->with('success', 'Товар добавлен в избранное');
-        }
-
-        return back()->with('info', 'Товар уже в избранном');
+    public function store(Request $request, Product $product)
+{
+    /** @var User $user */
+    $user = Auth::user();
+    
+    $exists = $user->wishlists()->where('product_id', $product->id)->exists();
+    
+    if ($exists) {
+        $user->wishlists()->where('product_id', $product->id)->delete();
+        $inWishlist = false;
+        $message = 'Товар удален из избранного';
+    } else {
+        $user->wishlists()->create(['product_id' => $product->id]);
+        $inWishlist = true;
+        $message = 'Товар добавлен в избранное';
     }
 
-    /**
-     * Удалить товар из избранного
-     */
-    public function destroy(Product $product)
+    // ВАЖНО: проверяем, что это AJAX запрос
+    if ($request->ajax()) {
+        return response()->json([
+            'success' => true,
+            'inWishlist' => $inWishlist,
+            'message' => $message
+        ]);
+    }
+
+    return back()->with('success', $message);
+}
+
+    public function destroy(Request $request, Product $product)
     {
         /** @var User $user */
         $user = Auth::user();
         $user->wishlists()->where('product_id', $product->id)->delete();
+        
+        if ($request->ajax()) {
+            return response()->json([
+                'success' => true,
+                'inWishlist' => false,
+                'message' => 'Товар удален из избранного'
+            ]);
+        }
         
         return back()->with('success', 'Товар удален из избранного');
     }

@@ -9,6 +9,10 @@
     <form method="POST" action="{{ route('register.store') }}" class="auth-form">
         @csrf
         
+        @if(request('redirect'))
+            <input type="hidden" name="redirect" value="{{ request('redirect') }}">
+        @endif
+        
         <div class="form-group">
             <label for="name">Имя *</label>
             <input type="text" name="name" id="name" value="{{ old('name') }}" required autofocus>
@@ -27,7 +31,7 @@
         
         <div class="form-group">
             <label for="phone">Телефон</label>
-            <input type="tel" name="phone" id="phone" value="{{ old('phone') }}">
+            <input type="text" name="phone" id="phone" value="{{ old('phone') }}">
             @error('phone')
                 <div class="error">{{ $message }}</div>
             @enderror
@@ -50,7 +54,7 @@
     </form>
     
     <div class="auth-links">
-        <a href="{{ route('login') }}">Уже есть аккаунт? Войти</a>
+        <a href="{{ route('login') }}{{ request('redirect') ? '?redirect='.urlencode(request('redirect')) : '' }}">Уже есть аккаунт? Войти</a>
     </div>
 </div>
 @endsection
