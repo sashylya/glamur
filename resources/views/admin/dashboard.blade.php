@@ -28,7 +28,7 @@
         </div>
         
         
-        <div style="background: linear-gradient(135deg, #fa709a 0%, #7c2b2b 100%); padding: 25px; border-radius: 12px; color: white; box-shadow: 0 4px 12px rgba(250, 112, 154, 0.2);">
+        <div style="background: #7c2b2b; padding: 25px; border-radius: 12px; color: white; box-shadow: 0 4px 12px rgba(250, 112, 154, 0.2);">
             <div style="font-size: 36px; font-weight: bold; margin-bottom: 5px;">{{ $pendingReviews ?? 0 }}</div>
             <div style="font-size: 14px; opacity: 0.9;">На модерации</div>
             @if(($pendingReviews ?? 0) > 0)

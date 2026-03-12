@@ -10,7 +10,7 @@
 <body>
     <div class="topbar">
         <div class="container topbar-inner">
-            <a href="{{ route('home') }}" class="logo">ГЛАМУР</a>
+            <a href="{{ route('home') }}" class="logo">GLAMUR</a>
             
             <nav class="main-nav">
                 <a href="{{ route('catalog.index') }}">Каталог</a>
@@ -60,7 +60,7 @@
         <div class="container">
             <div class="footer-grid">
                 <div>
-                    <h4>Гламур</h4>
+                    <h4>Glamur</h4>
                     <p>Магазин украшений<br>в темной эстетике</p>
                 </div>
                 <div>

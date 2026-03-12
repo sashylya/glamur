@@ -12,15 +12,15 @@
     @endif
 
     <div class="reviews-stats" style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 20px; margin-bottom: 30px;">
-        <div style="background: linear-gradient(135deg, #dcdfe9 0%, #7c2b2b 75%); padding: 20px; border-radius: 12px; color: white;">
+        <div style="background: #7c2b2b;  padding: 20px; border-radius: 12px; color: white;">
             <div style="font-size: 32px; font-weight: bold;">{{ $reviews->total() }}</div>
             <div style="font-size: 14px; opacity: 0.9;">Всего отзывов</div>
         </div>
-        <div style="background: linear-gradient(135deg, #bfc3d3 0%, #f5576c 75%); padding: 20px; border-radius: 12px; color: white;">
+        <div style="background: #7c2b2b; padding: 20px; border-radius: 12px; color: white;">
             <div style="font-size: 32px; font-weight: bold;">{{ $reviews->where('is_approved', false)->count() }}</div>
             <div style="font-size: 14px; opacity: 0.9;">Ожидают проверки</div>
         </div>
-        <div style="background: linear-gradient(135deg, #bfc3d3 0%, #2b7c4d 75%); padding: 20px; border-radius: 12px; color: white;">
+        <div style="background: #7c2b2b; padding: 20px; border-radius: 12px; color: white;">
             <div style="font-size: 32px; font-weight: bold;">{{ $reviews->where('is_approved', true)->count() }}</div>
             <div style="font-size: 14px; opacity: 0.9;">Одобрено</div>
         </div>
@@ -28,7 +28,7 @@
 
     <div class="reviews-grid">
         @forelse($reviews as $review)
-            <div class="review-card" style="background: white; border-radius: 12px; box-shadow: 0 2px 8px rgba(0,0,0,0.1); margin-bottom: 20px; overflow: hidden; border-left: 4px solid {{ !$review->is_approved ? '#ffc107' : '#28a745' }};">
+            <div class="review-card" style="background: #2b2d39; border-radius: 12px; box-shadow: 0 2px 8px rgba(0,0,0,0.1); margin-bottom: 20px; overflow: hidden; border-left: 4px solid {{ !$review->is_approved ? '#ffc107' : '#28a745' }};">
                 <div style="padding: 20px;">
                     <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 15px;">
                         <div style="display: flex; align-items: center; gap: 12px;">
@@ -36,7 +36,7 @@
                                 {{ strtoupper(substr($review->user->name, 0, 1)) }}
                             </div>
                             <div>
-                                <div style="font-weight: 600; color: #333;">{{ $review->user->name }}</div>
+                                <div style="font-weight: 600; color: #ffffff;">{{ $review->user->name }}</div>
                                 <div style="font-size: 12px; color: #999;">{{ $review->created_at->format('d.m.Y H:i') }}</div>
                             </div>
                         </div>
@@ -48,7 +48,7 @@
                     </div>
 
                     <div style="margin-bottom: 15px;">
-                        <a href="{{ route('catalog.show', $review->product) }}" style="color: #7c2b2b; text-decoration: none; font-weight: 500;">
+                        <a href="{{ route('catalog.show', $review->product) }}" style="color: #ffffff; text-decoration: none; font-weight: 500;">
                             {{ $review->product->name }}
                         </a>
                     </div>
