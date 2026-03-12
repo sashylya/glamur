@@ -19,19 +19,19 @@
             <nav class="admin-nav">
                 <ul>
                     <li class="{{ request()->routeIs('admin.dashboard') ? 'active' : '' }}">
-                        <a href="{{ route('admin.dashboard') }}">📊 Дашборд</a>
+                        <a href="{{ route('admin.dashboard') }}"> Дашборд</a>
                     </li>
                     <li class="{{ request()->routeIs('admin.products.*') ? 'active' : '' }}">
-                        <a href="{{ route('admin.products.index') }}">📦 Товары</a>
+                        <a href="{{ route('admin.products.index') }}"> Товары</a>
                     </li>
                     <li class="{{ request()->routeIs('admin.categories.*') ? 'active' : '' }}">
-                        <a href="{{ route('admin.categories.index') }}">📁 Категории</a>
+                        <a href="{{ route('admin.categories.index') }}"> Категории</a>
                     </li>
                     <li class="{{ request()->routeIs('admin.orders.*') ? 'active' : '' }}">
-                        <a href="{{ route('admin.orders.index') }}">📋 Заказы</a>
+                        <a href="{{ route('admin.orders.index') }}"> Заказы</a>
                     </li>
                     <li class="{{ request()->routeIs('admin.reviews.*') ? 'active' : '' }}">
-                        <a href="{{ route('admin.reviews.index') }}">⭐ Отзывы</a>
+                        <a href="{{ route('admin.reviews.index') }}"> Отзывы</a>
                     </li>
                 </ul>
             </nav>
