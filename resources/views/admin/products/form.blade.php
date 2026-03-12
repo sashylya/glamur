@@ -141,23 +141,29 @@
         
         <div class="form-side">
             <div class="form-group">
-                <label>Изображения</label>
-                <input type="file" name="images[]" multiple accept="image/*" class="file-input">
-                <small>Можно выбрать несколько изображений</small>
+                <label>Добавить изображения</label>
+                <div class="file-upload-container">
+                    <input type="file" name="images[]" id="images" multiple accept="image/*" class="file-input">
+                    <div class="file-help">Вы можете выбрать сразу несколько файлов, удерживая Ctrl</div>
+                </div>
             </div>
             
             @if(isset($product) && $product->images->isNotEmpty())
                 <div class="existing-images">
                     <h4>Текущие изображения</h4>
-                    <div class="image-grid">
+                    <div class="image-grid-admin">
                         @foreach($product->images as $image)
-                            <div class="image-item">
-                                <img src="{{ asset($image->path) }}" alt="">
-                                <label>
-                                    <input type="radio" name="main_image" value="{{ $image->id }}" {{ $image->is_main ? 'checked' : '' }}>
-                                    Главное
-                                </label>
-                                <button type="button" class="remove-image" data-id="{{ $image->id }}">✕</button>
+                            <div class="image-item" id="image-{{ $image->id }}">
+                                <div class="image-preview">
+                                    <img src="{{ asset($image->path) }}" alt="">
+                                </div>
+                                <div class="image-controls">
+                                    <label class="main-label">
+                                        <input type="radio" name="main_image" value="{{ $image->id }}" {{ $image->is_main ? 'checked' : '' }}>
+                                        Главное
+                                    </label>
+                                    <button type="button" class="remove-image-btn" data-id="{{ $image->id }}" title="Удалить">✕</button>
+                                </div>
                             </div>
                         @endforeach
                     </div>
@@ -181,6 +187,34 @@
             .replace(/[^\w\s-]/g, '')
             .replace(/\s+/g, '-');
         document.getElementById('slug').value = slug;
+    });
+
+    // Удаление изображения через AJAX
+    document.querySelectorAll('.remove-image-btn').forEach(button => {
+        button.addEventListener('click', function() {
+            if (!confirm('Удалить это изображение?')) return;
+            
+            const imageId = this.dataset.id;
+            const container = document.getElementById('image-' + imageId);
+            
+            fetch(`/admin/product-images/${imageId}`, {
+                method: 'DELETE',
+                headers: {
+                    'X-CSRF-TOKEN': '{{ csrf_token() }}',
+                    'Accept': 'application/json'
+                }
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.success) {
+                    container.remove();
+                }
+            })
+            .catch(error => {
+                console.error('Ошибка:', error);
+                alert('Не удалось удалить изображение');
+            });
+        });
     });
 </script>
 @endpush

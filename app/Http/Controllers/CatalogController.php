@@ -11,6 +11,11 @@ class CatalogController extends Controller
 {
     public function index(Request $request)
     {
+        // Если выбрано "Все", сбрасываем фильтры и перенаправляем на чистый каталог
+        if ($request->get('sort') === 'all') {
+            return redirect()->route('catalog.index');
+        }
+
         $query = Product::with('category', 'images')
             ->where('is_active', true);
 

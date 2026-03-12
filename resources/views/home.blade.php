@@ -42,9 +42,14 @@
         <div class="collection-products-grid">
             @foreach($collectionProducts as $product)
                 <article class="product-card">
-                    <a href="{{ route('catalog.show', $product) }}">
-                        <img src="{{ asset($product->mainImage()) }}" alt="{{ $product->name }}">
-                    </a>
+                    <div class="product-image-container" style="position: relative;">
+                        @if($product->is_new)
+                            <div class="badge-new" style="position: absolute; top: 10px; right: 10px; background: #667eea; color: white; padding: 4px 8px; border-radius: 4px; font-size: 11px; font-weight: bold; z-index: 10;">NEW</div>
+                        @endif
+                        <a href="{{ route('catalog.show', $product) }}">
+                            <img src="{{ asset($product->mainImage()) }}" alt="{{ $product->name }}">
+                        </a>
+                    </div>
                     <h3><a href="{{ route('catalog.show', $product) }}">{{ $product->name }}</a></h3>
                     <p class="price">{{ number_format($product->price, 0, '.', ' ') }} руб.</p>
                     <div class="card-actions">
@@ -73,9 +78,14 @@
             <div class="collection-grid-products">
                 @foreach($gridProducts as $product)
                     <article class="product-card">
-                        <a href="{{ route('catalog.show', $product) }}">
-                            <img src="{{ asset($product->mainImage()) }}" alt="{{ $product->name }}">
-                        </a>
+                        <div class="product-image-container" style="position: relative;">
+                            @if($product->is_new)
+                                <div class="badge-new" style="position: absolute; top: 10px; right: 10px; background: #667eea; color: white; padding: 4px 8px; border-radius: 4px; font-size: 11px; font-weight: bold; z-index: 10;">NEW</div>
+                            @endif
+                            <a href="{{ route('catalog.show', $product) }}">
+                                <img src="{{ asset($product->mainImage()) }}" alt="{{ $product->name }}">
+                            </a>
+                        </div>
                         <h3><a href="{{ route('catalog.show', $product) }}">{{ $product->name }}</a></h3>
                         <p class="price">{{ number_format($product->price, 0, '.', ' ') }} руб.</p>
                         <div class="card-actions">
@@ -103,9 +113,14 @@
         <div class="collection-products-grid">
             @foreach($anotherCollectionProducts ?? $collectionProducts as $product)
                 <article class="product-card">
-                    <a href="{{ route('catalog.show', $product) }}">
-                        <img src="{{ asset($product->mainImage()) }}" alt="{{ $product->name }}">
-                    </a>
+                    <div class="product-image-container" style="position: relative;">
+                        @if($product->is_new)
+                            <div class="badge-new" style="position: absolute; top: 10px; right: 10px; background: #667eea; color: white; padding: 4px 8px; border-radius: 4px; font-size: 11px; font-weight: bold; z-index: 10;">NEW</div>
+                        @endif
+                        <a href="{{ route('catalog.show', $product) }}">
+                            <img src="{{ asset($product->mainImage()) }}" alt="{{ $product->name }}">
+                        </a>
+                    </div>
                     <h3><a href="{{ route('catalog.show', $product) }}">{{ $product->name }}</a></h3>
                     <p class="price">{{ number_format($product->price, 0, '.', ' ') }} руб.</p>
                     <div class="card-actions">

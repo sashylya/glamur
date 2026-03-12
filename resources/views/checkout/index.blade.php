@@ -14,7 +14,7 @@
             
             <div class="form-group">
                 <label for="first_name">Имя *</label>
-                <input type="text" name="first_name" id="first_name" value="{{ old('first_name', $user->name ?? '') }}" required>
+                <input type="text" name="first_name" id="first_name" value="{{ old('first_name', $user->name ?? '') }}" class="@error('first_name') error @enderror" required>
                 @error('first_name')
                     <div class="error">{{ $message }}</div>
                 @enderror
@@ -22,7 +22,7 @@
             
             <div class="form-group">
                 <label for="last_name">Фамилия *</label>
-                <input type="text" name="last_name" id="last_name" value="{{ old('last_name') }}" required>
+                <input type="text" name="last_name" id="last_name" value="{{ old('last_name') }}" class="@error('last_name') error @enderror" required>
                 @error('last_name')
                     <div class="error">{{ $message }}</div>
                 @enderror
@@ -30,7 +30,7 @@
             
             <div class="form-group">
                 <label for="email">Email *</label>
-                <input type="email" name="email" id="email" value="{{ old('email', $user->email ?? '') }}" required>
+                <input type="email" name="email" id="email" value="{{ old('email', $user->email ?? '') }}" class="@error('email') error @enderror" required>
                 @error('email')
                     <div class="error">{{ $message }}</div>
                 @enderror
@@ -38,7 +38,7 @@
             
             <div class="form-group">
                 <label for="phone">Телефон *</label>
-                <input type="tel" name="phone" id="phone" value="{{ old('phone', $user->phone ?? '') }}" required>
+                <input type="tel" name="phone" id="phone" value="{{ old('phone', $user->phone ?? '') }}" class="@error('phone') error @enderror" placeholder="+7 (900) 000-00-00" required>
                 @error('phone')
                     <div class="error">{{ $message }}</div>
                 @enderror
@@ -48,7 +48,7 @@
             
             <div class="form-group">
                 <label for="address">Адрес доставки *</label>
-                <input type="text" name="address" id="address" value="{{ old('address', $user->address ?? '') }}" required>
+                <input type="text" name="address" id="address" value="{{ old('address', $user->address ?? '') }}" class="@error('address') error @enderror" placeholder="Улица, дом, квартира" required>
                 @error('address')
                     <div class="error">{{ $message }}</div>
                 @enderror
@@ -57,7 +57,7 @@
             <div class="form-row">
                 <div class="form-group">
                     <label for="city">Город *</label>
-                    <input type="text" name="city" id="city" value="{{ old('city', $user->city ?? '') }}" required>
+                    <input type="text" name="city" id="city" value="{{ old('city', $user->city ?? '') }}" class="@error('city') error @enderror" required>
                     @error('city')
                         <div class="error">{{ $message }}</div>
                     @enderror
@@ -66,7 +66,7 @@
             
             <div class="form-group">
                 <label for="notes">Примечание к заказу</label>
-                <textarea name="notes" id="notes" rows="3">{{ old('notes') }}</textarea>
+                <textarea name="notes" id="notes" rows="3" class="@error('notes') error @enderror" placeholder="Например: код домофона, предпочтительное время">{{ old('notes') }}</textarea>
                 @error('notes')
                     <div class="error">{{ $message }}</div>
                 @enderror
@@ -83,7 +83,7 @@
                 <div id="password-fields" style="display: {{ old('create_account') ? 'block' : 'none' }};">
                     <div class="form-group">
                         <label for="password">Пароль</label>
-                        <input type="password" name="password" id="password">
+                        <input type="password" name="password" id="password" class="@error('password') error @enderror">
                         @error('password')
                             <div class="error">{{ $message }}</div>
                         @enderror
@@ -119,9 +119,23 @@
 
 @push('scripts')
 <script>
-    document.querySelector('[name="create_account"]').addEventListener('change', function() {
+    // Показ/скрытие пароля
+    document.querySelector('[name="create_account"]')?.addEventListener('change', function() {
         document.getElementById('password-fields').style.display = this.checked ? 'block' : 'none';
     });
+
+    // Простая маска для телефона
+    const phoneInput = document.getElementById('phone');
+    if (phoneInput) {
+        phoneInput.addEventListener('input', function(e) {
+            let x = e.target.value.replace(/\D/g, '').match(/(\d{0,1})(\d{0,3})(\d{0,3})(\d{0,2})(\d{0,2})/);
+            if (!x[2] && x[1] !== '') {
+                e.target.value = x[1] === '7' || x[1] === '8' ? '+7 ' : '+7 ' + x[1];
+            } else {
+                e.target.value = !x[3] ? '+7 (' + x[2] : '+7 (' + x[2] + ') ' + x[3] + (x[4] ? '-' + x[4] : '') + (x[5] ? '-' + x[5] : '');
+            }
+        });
+    }
 </script>
 @endpush
 @endsection

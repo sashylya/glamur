@@ -148,6 +148,9 @@ class ProductController extends Controller
         
         // Обработка новых изображений
         if ($request->hasFile('images')) {
+            // Проверяем, есть ли уже главное изображение
+            $hasMain = ProductImage::where('product_id', $product->id)->where('is_main', true)->exists();
+            
             foreach ($request->file('images') as $index => $file) {
                 $path = $file->store('images/products', 'public');
                 
@@ -155,8 +158,10 @@ class ProductController extends Controller
                     'product_id' => $product->id,
                     'path' => 'storage/' . $path,
                     'sort' => $product->images->count() + $index,
-                    'is_main' => false,
+                    'is_main' => !$hasMain && $index === 0, // Делаем главным только если раньше его не было
                 ]);
+                
+                if (!$hasMain && $index === 0) $hasMain = true;
             }
         }
         
@@ -179,5 +184,25 @@ class ProductController extends Controller
         
         return redirect()->route('admin.products.index')
             ->with('success', 'Товар удален');
+    }
+
+    /**
+     * Удаление одного изображения товара
+     */
+    public function destroyImage(ProductImage $image)
+    {
+        // Удаляем физически с диска
+        $path = str_replace('storage/', '', $image->path);
+        if (\Illuminate\Support\Facades\Storage::disk('public')->exists($path)) {
+            \Illuminate\Support\Facades\Storage::disk('public')->delete($path);
+        }
+
+        $image->delete();
+
+        if (request()->ajax()) {
+            return response()->json(['success' => true]);
+        }
+
+        return back()->with('success', 'Изображение удалено');
     }
 }

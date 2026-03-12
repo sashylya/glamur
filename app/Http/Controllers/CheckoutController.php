@@ -46,10 +46,26 @@ class CheckoutController extends Controller
             'first_name' => 'required|string|max:255',
             'last_name' => 'required|string|max:255',
             'email' => 'required|email',
-            'phone' => 'required|string',
-            'address' => 'required|string',
-            'city' => 'required|string',
-            'notes' => 'nullable|string',
+            'phone' => ['required', 'string', 'regex:/^(\+7|8|7)[\s\-]?\(?[489][0-9]{2}\)?[\s\-]?[0-9]{3}[\s\-]?[0-9]{2}[\s\-]?[0-9]{2}$/'],
+            'address' => 'required|string|min:10|max:500',
+            'city' => 'required|string|min:2|max:100',
+            'notes' => 'nullable|string|max:1000',
+        ];
+
+        $messages = [
+            'first_name.required' => 'Пожалуйста, укажите ваше имя',
+            'last_name.required' => 'Пожалуйста, укажите вашу фамилию',
+            'email.required' => 'Email обязателен для связи',
+            'email.email' => 'Введите корректный адрес почты',
+            'phone.required' => 'Номер телефона необходим для подтверждения заказа',
+            'phone.regex' => 'Введите корректный номер телефона (например, +7 900 000 00 00)',
+            'address.required' => 'Укажите полный адрес доставки',
+            'address.min' => 'Адрес должен быть более подробным (минимум 10 символов)',
+            'city.required' => 'Укажите город доставки',
+            'city.min' => 'Название города слишком короткое',
+            'password.required_if' => 'Для создания аккаунта необходим пароль',
+            'password.min' => 'Пароль должен быть не менее 8 символов',
+            'password.confirmed' => 'Пароли не совпадают',
         ];
 
         // Если пользователь не авторизован, проверяем создание аккаунта
@@ -58,7 +74,7 @@ class CheckoutController extends Controller
             $rules['password'] = 'required_if:create_account,1|string|min:8|confirmed';
         }
 
-        $data = $request->validate($rules);
+        $data = $request->validate($rules, $messages);
 
         DB::beginTransaction();
 

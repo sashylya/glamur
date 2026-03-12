@@ -6,12 +6,14 @@
 <div class="details-layout">
     <!-- Галерея -->
     <div class="gallery">
-        <img src="{{ asset($product->mainImage()) }}" alt="{{ $product->name }}" class="main-image">
+        <img src="{{ asset($product->mainImage()) }}" alt="{{ $product->name }}" class="main-image" id="main-product-image">
         
-        @if($product->images->count() > 1)
+        @if($product->images->count() > 0)
             <div class="thumbs">
                 @foreach($product->images as $image)
-                    <img src="{{ asset($image->path) }}" alt="{{ $product->name }}">
+                    <img src="{{ asset($image->path) }}" alt="{{ $product->name }}" 
+                         onclick="document.getElementById('main-product-image').src = this.src" 
+                         style="cursor: pointer;">
                 @endforeach
             </div>
         @endif

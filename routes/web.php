@@ -93,6 +93,9 @@ Route::prefix('admin')->name('admin.')->middleware(['auth', 'admin'])->group(fun
     // Категории
     Route::resource('categories', CategoryController::class)->except(['show']);
     
+    // Удаление изображений товара
+    Route::delete('/product-images/{image}', [ProductController::class, 'destroyImage'])->name('products.delete-image');
+    
     // ОТЗЫВЫ - используем полное имя класса с обратным слешем
     Route::get('/reviews', [\App\Http\Controllers\Admin\ReviewController::class, 'index'])->name('reviews.index');
     Route::patch('/reviews/{review}/approve', [\App\Http\Controllers\Admin\ReviewController::class, 'approve'])->name('reviews.approve');

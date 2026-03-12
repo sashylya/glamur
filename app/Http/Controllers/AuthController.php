@@ -44,15 +44,25 @@ class AuthController extends Controller
         $data = $request->validate([
             'name' => 'required|string|max:255',
             'email' => 'required|email|unique:users',
+            'phone' => ['required', 'string', 'regex:/^(\+7|8|7)[\s\-]?\(?[489][0-9]{2}\)?[\s\-]?[0-9]{3}[\s\-]?[0-9]{2}[\s\-]?[0-9]{2}$/'],
             'password' => 'required|string|min:8|confirmed',
-            'phone' => 'nullable|string',
+        ], [
+            'name.required' => 'Укажите ваше имя',
+            'email.required' => 'Email обязателен для регистрации',
+            'email.email' => 'Введите корректный адрес почты',
+            'email.unique' => 'Этот email уже используется',
+            'phone.required' => 'Номер телефона необходим для регистрации',
+            'phone.regex' => 'Введите корректный номер телефона (например, +7 900 000 00 00)',
+            'password.required' => 'Придумайте пароль',
+            'password.min' => 'Пароль должен быть не менее 8 символов',
+            'password.confirmed' => 'Пароли не совпадают',
         ]);
 
         $user = User::create([
             'name' => $data['name'],
             'email' => $data['email'],
+            'phone' => $data['phone'],
             'password' => Hash::make($data['password']),
-            'phone' => $data['phone'] ?? null,
         ]);
 
         Auth::login($user);
