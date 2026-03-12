@@ -27,7 +27,7 @@ class HomeController extends Controller
             $collectionProducts = Product::with('images')
                 ->where('is_active', true)
                 ->where('category_id', 2) // Кольца
-                ->orderByDesc('popularity')
+                ->orderByDesc('created_at')
                 ->take(3)
                 ->get();
         }
@@ -44,7 +44,7 @@ class HomeController extends Controller
         if ($gridProducts->isEmpty()) {
             $gridProducts = Product::with('images')
                 ->where('is_active', true)
-                ->orderByDesc('popularity')
+                ->orderByDesc('created_at')
                 ->take(4)
                 ->get();
         }
@@ -53,7 +53,7 @@ class HomeController extends Controller
         $anotherCollectionProducts = Product::with('images')
             ->where('is_active', true)
             ->where('category_id', 4) // Браслеты
-            ->orderByDesc('popularity')
+            ->orderByDesc('created_at')
             ->take(3)
             ->get();
 
@@ -61,7 +61,7 @@ class HomeController extends Controller
         if ($anotherCollectionProducts->isEmpty()) {
             $anotherCollectionProducts = Product::with('images')
                 ->where('is_active', true)
-                ->orderByDesc('popularity')
+                ->orderByDesc('created_at')
                 ->take(3)
                 ->get();
         }

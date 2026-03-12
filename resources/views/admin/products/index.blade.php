@@ -44,7 +44,6 @@
                 <th style="padding: 15px; text-align: left; color: #666; font-weight: 500;">Категория</th>
                 <th style="padding: 15px; text-align: left; color: #666; font-weight: 500;">Цена</th>
                 <th style="padding: 15px; text-align: left; color: #666; font-weight: 500;">Остаток</th>
-                <th style="padding: 15px; text-align: left; color: #666; font-weight: 500;">Популярность</th>
                 <th style="padding: 15px; text-align: left; color: #666; font-weight: 500;">Новинка</th>
                 <th style="padding: 15px; text-align: left; color: #666; font-weight: 500;">Действия</th>
             </tr>
@@ -68,7 +67,6 @@
                             <span style="color: #dc3545;">Нет</span>
                         @endif
                     </td>
-                    <td style="padding: 15px;">{{ $product->popularity }}</td>
                     <td style="padding: 15px;">
                         @if($product->is_new)
                             <span style="background: #667eea; color: white; padding: 4px 8px; border-radius: 4px; font-size: 11px;">NEW</span>
@@ -92,5 +90,10 @@
             @endforelse
         </tbody>
     </table>
+</div>
+
+<!-- Пагинация -->
+<div class="pagination-wrapper" style="margin-top: 20px;">
+    {{ $products->links('partials.pagination') }}
 </div>
 @endsection

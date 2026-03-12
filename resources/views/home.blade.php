@@ -53,11 +53,15 @@
                     <h3><a href="{{ route('catalog.show', $product) }}">{{ $product->name }}</a></h3>
                     <p class="price">{{ number_format($product->price, 0, '.', ' ') }} руб.</p>
                     <div class="card-actions">
-                        <form action="{{ route('cart.add', $product) }}" method="POST">
-                            @csrf
-                            <input type="hidden" name="quantity" value="1">
-                            <button type="submit" class="btn">В корзину</button>
-                        </form>
+                        @if($product->stock > 0)
+                            <form action="{{ route('cart.add', $product) }}" method="POST">
+                                @csrf
+                                <input type="hidden" name="quantity" value="1">
+                                <button type="submit" class="btn">В корзину</button>
+                            </form>
+                        @else
+                            <span class="out-of-stock-label" style="color: #666; font-size: 14px; padding: 10px 0;">Нет в наличии</span>
+                        @endif
                     </div>
                 </article>
             @endforeach
@@ -124,11 +128,15 @@
                     <h3><a href="{{ route('catalog.show', $product) }}">{{ $product->name }}</a></h3>
                     <p class="price">{{ number_format($product->price, 0, '.', ' ') }} руб.</p>
                     <div class="card-actions">
-                        <form action="{{ route('cart.add', $product) }}" method="POST">
-                            @csrf
-                            <input type="hidden" name="quantity" value="1">
-                            <button type="submit" class="btn">В корзину</button>
-                        </form>
+                        @if($product->stock > 0)
+                            <form action="{{ route('cart.add', $product) }}" method="POST">
+                                @csrf
+                                <input type="hidden" name="quantity" value="1">
+                                <button type="submit" class="btn">В корзину</button>
+                            </form>
+                        @else
+                            <span class="out-of-stock-label" style="color: #666; font-size: 14px; padding: 10px 0;">Нет в наличии</span>
+                        @endif
                     </div>
                 </article>
             @endforeach

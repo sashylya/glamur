@@ -75,8 +75,8 @@ class ProductController extends Controller
             'stone' => 'nullable|string',
             'price' => 'required|numeric',
             'stock' => 'required|integer',
-            'popularity' => 'nullable|integer',
             'is_new' => 'nullable|boolean',
+            'is_active' => 'nullable|boolean',
         ]);
         
         // Генерация slug, если не указан
@@ -85,6 +85,7 @@ class ProductController extends Controller
         }
         
         $data['is_new'] = $request->has('is_new');
+        $data['is_active'] = $request->has('is_active') ? $request->is_active : true;
         
         $product = Product::create($data);
         

@@ -87,11 +87,10 @@
                 @endforeach
                 
                 <select name="sort" onchange="this.form.submit()">
-                    <option value="all" {{ !request('sort') && !request('category') && !request('is_new') ? 'selected' : '' }}>Все товары</option>
-                    <option value="popularity" {{ request('sort') == 'popularity' ? 'selected' : '' }}>По популярности</option>
+                    <option value="latest" {{ request('sort') == 'latest' || !request('sort') ? 'selected' : '' }}>Все товары</option>
+                    <option value="newest" {{ request('sort') == 'newest' ? 'selected' : '' }}>Новинки</option>
                     <option value="price_asc" {{ request('sort') == 'price_asc' ? 'selected' : '' }}>Цена: по возрастанию</option>
                     <option value="price_desc" {{ request('sort') == 'price_desc' ? 'selected' : '' }}>Цена: по убыванию</option>
-                    <option value="newest" {{ request('sort') == 'newest' ? 'selected' : '' }}>Новинки</option>
                 </select>
             </form>
         </div>
@@ -115,17 +114,21 @@
                     </div>
                     
                     <div class="card-actions">
-                        @auth
-                            {{-- Авторизован: кнопка добавляет в корзину --}}
-                            <form action="{{ route('cart.add', $product) }}" method="POST">
-                                @csrf
-                                <input type="hidden" name="quantity" value="1">
-                                <button type="submit" class="btn">В корзину</button>
-                            </form>
+                        @if($product->stock > 0)
+                            @auth
+                                {{-- Авторизован: кнопка добавляет в корзину --}}
+                                <form action="{{ route('cart.add', $product) }}" method="POST">
+                                    @csrf
+                                    <input type="hidden" name="quantity" value="1">
+                                    <button type="submit" class="btn">В корзину</button>
+                                </form>
+                            @else
+                                {{-- Не авторизован: кнопка ведет на страницу входа --}}
+                                <a href="{{ route('login') }}?redirect={{ urlencode(request()->fullUrl()) }}" class="btn">Войти для покупки</a>
+                            @endauth
                         @else
-                            {{-- Не авторизован: кнопка ведет на страницу входа --}}
-                            <a href="{{ route('login') }}?redirect={{ urlencode(request()->fullUrl()) }}" class="btn">Войти для покупки</a>
-                        @endauth
+                            <span class="out-of-stock-label" style="color: #666; font-size: 14px; flex: 1; text-align: center; padding: 10px 0;">Нет в наличии</span>
+                        @endif
                         
                         @auth
                             <form action="{{ route('wishlist.add', $product) }}" method="POST">
@@ -143,7 +146,10 @@
             @endforelse
         </div>
         
-        
+        <!-- Пагинация -->
+        <div class="pagination-wrapper">
+            {{ $products->links('partials.pagination') }}
+        </div>
     </div>
 </div>
 @endsection

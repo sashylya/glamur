@@ -128,14 +128,6 @@
                         Новинка
                     </label>
                 </div>
-                
-                <div class="form-group">
-                    <label for="popularity">Популярность (0-100)</label>
-                    <input type="number" name="popularity" id="popularity" value="{{ old('popularity', $product->popularity ?? 0) }}" min="0" max="100">
-                    @error('popularity')
-                        <div class="error">{{ $message }}</div>
-                    @enderror
-                </div>
             </div>
         </div>
         

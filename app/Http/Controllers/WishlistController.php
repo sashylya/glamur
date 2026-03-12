@@ -41,7 +41,6 @@ class WishlistController extends BaseController
         $message = 'Товар добавлен в избранное';
     }
 
-    // ВАЖНО: проверяем, что это AJAX запрос
     if ($request->ajax()) {
         return response()->json([
             'success' => true,

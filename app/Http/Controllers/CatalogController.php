@@ -5,17 +5,12 @@ namespace App\Http\Controllers;
 use App\Models\Product;
 use App\Models\Category;
 use Illuminate\Http\Request;
-use App\Http\Controllers\Controller; // ← Добавьте этот импорт
+use App\Http\Controllers\Controller; 
 
 class CatalogController extends Controller
 {
     public function index(Request $request)
     {
-        // Если выбрано "Все", сбрасываем фильтры и перенаправляем на чистый каталог
-        if ($request->get('sort') === 'all') {
-            return redirect()->route('catalog.index');
-        }
-
         $query = Product::with('category', 'images')
             ->where('is_active', true);
 
@@ -57,7 +52,7 @@ class CatalogController extends Controller
             }
         }
 
-        // Фильтр "Новинка"
+        // Фильтр "Новинка" (для ссылок с главной)
         if ($request->has('is_new')) {
             $query->where('is_new', true);
         }
@@ -75,8 +70,8 @@ class CatalogController extends Controller
             $query->where('material', $request->material);
         }
 
-        // Сортировка
-        $sort = $request->get('sort', 'popularity');
+        // Сортировка и спец. фильтры
+        $sort = $request->get('sort', 'latest');
         switch ($sort) {
             case 'price_asc':
                 $query->orderBy('price', 'asc');
@@ -85,10 +80,12 @@ class CatalogController extends Controller
                 $query->orderBy('price', 'desc');
                 break;
             case 'newest':
+                $query->where('is_new', true); // ТЕПЕРЬ ЭТО ФИЛЬТР
                 $query->orderByDesc('created_at');
                 break;
+            case 'latest':
             default:
-                $query->orderByDesc('popularity');
+                $query->orderByDesc('created_at');
         }
 
         $products = $query->paginate(12)->withQueryString();
@@ -130,7 +127,6 @@ class CatalogController extends Controller
 
     public function category(Request $request, Category $category)
     {
-        // ИСПРАВЛЕНО: используем Product::where вместо $category->products()
         $query = Product::with('images')
             ->where('category_id', $category->id)
             ->where('is_active', true);
@@ -171,7 +167,7 @@ class CatalogController extends Controller
         }
 
         // Сортировка
-        $sort = $request->get('sort', 'popularity');
+        $sort = $request->get('sort', 'newest');
         switch ($sort) {
             case 'price_asc':
                 $query->orderBy('price', 'asc');
@@ -180,10 +176,8 @@ class CatalogController extends Controller
                 $query->orderBy('price', 'desc');
                 break;
             case 'newest':
-                $query->orderByDesc('created_at');
-                break;
             default:
-                $query->orderByDesc('popularity');
+                $query->orderByDesc('created_at');
         }
 
         $products = $query->paginate(12)->withQueryString();

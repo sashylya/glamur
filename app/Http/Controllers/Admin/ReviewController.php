@@ -7,9 +7,9 @@ use App\Models\Review;
 use App\Models\User;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
-use Illuminate\Routing\Controller; // ← ИЗМЕНЕНО: убрал "as BaseController"
+use Illuminate\Routing\Controller; 
 
-class ReviewController extends Controller // ← ИЗМЕНЕНО: теперь просто Controller
+class ReviewController extends Controller 
 {
     public function __construct()
     {
