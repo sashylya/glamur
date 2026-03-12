@@ -24,7 +24,6 @@ Route::get('/', [HomeController::class, 'index'])->name('home');
 // Каталог
 Route::prefix('catalog')->name('catalog.')->group(function () {
     Route::get('/', [CatalogController::class, 'index'])->name('index');
-    Route::get('/category/{category}', [CatalogController::class, 'category'])->name('category');
     Route::get('/{product:slug}', [CatalogController::class, 'show'])->name('show'); 
 });
 

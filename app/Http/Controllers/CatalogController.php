@@ -109,6 +109,7 @@ class CatalogController extends Controller
         return view('catalog.index', compact('products', 'categories', 'materials', 'title'));
     }
 
+    //похожие товары
     public function show(Product $product)
     {
         if (!$product->is_active) {
@@ -123,65 +124,5 @@ class CatalogController extends Controller
             ->get();
 
         return view('catalog.show', compact('product', 'related'));
-    }
-
-    public function category(Request $request, Category $category)
-    {
-        $query = Product::with('images')
-            ->where('category_id', $category->id)
-            ->where('is_active', true);
-
-        // ПОИСК в категории (умный поиск по словам)
-        if ($request->filled('search')) {
-            $search = $request->search;
-            $words = collect(explode(' ', $search))->filter(fn($w) => mb_strlen($w) >= 2);
-
-            if ($words->isNotEmpty()) {
-                $query->where(function($q) use ($words) {
-                    foreach ($words as $word) {
-                        $q->where(function($sub) use ($word) {
-                            $sub->where('name', 'like', "%{$word}%")
-                                ->orWhere('sku', 'like', "%{$word}%");
-                        });
-                    }
-                });
-            } else {
-                $query->where(function($q) use ($search) {
-                    $q->where('name', 'like', "%{$search}%")
-                      ->orWhere('sku', 'like', "%{$search}%");
-                });
-            }
-        }
-
-        // Фильтр по цене
-        if ($request->filled('min_price')) {
-            $query->where('price', '>=', $request->min_price);
-        }
-        if ($request->filled('max_price')) {
-            $query->where('price', '<=', $request->max_price);
-        }
-
-        // Фильтр по материалу
-        if ($request->filled('material')) {
-            $query->where('material', $request->material);
-        }
-
-        // Сортировка
-        $sort = $request->get('sort', 'newest');
-        switch ($sort) {
-            case 'price_asc':
-                $query->orderBy('price', 'asc');
-                break;
-            case 'price_desc':
-                $query->orderBy('price', 'desc');
-                break;
-            case 'newest':
-            default:
-                $query->orderByDesc('created_at');
-        }
-
-        $products = $query->paginate(12)->withQueryString();
-
-        return view('catalog.category', compact('category', 'products'));
     }
 }
