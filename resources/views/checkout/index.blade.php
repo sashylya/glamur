@@ -44,29 +44,17 @@
                 @enderror
             </div>
             
-            <h2>Доставка</h2>
-            
-            <div class="form-group">
-                <label for="address">Адрес доставки *</label>
-                <input type="text" name="address" id="address" value="{{ old('address', $user->address ?? '') }}" class="@error('address') error @enderror" placeholder="Улица, дом, квартира" required>
-                @error('address')
-                    <div class="error">{{ $message }}</div>
-                @enderror
-            </div>
-            
-            <div class="form-row">
-                <div class="form-group">
-                    <label for="city">Город *</label>
-                    <input type="text" name="city" id="city" value="{{ old('city', $user->city ?? '') }}" class="@error('city') error @enderror" required>
-                    @error('city')
-                        <div class="error">{{ $message }}</div>
-                    @enderror
-                </div>
+            <h2>Самовывоз</h2>
+            <div class="pickup-info" style="background: #1d1e27; padding: 15px; border-radius: 8px; margin-bottom: 20px;">
+                <p style="margin: 0 0 10px 0;"><strong>Адрес самовывоза:</strong> г. Москва, ул. Примерная, д. 123</p>
+                <p style="margin: 0; color: #666; font-size: 14px;">Режим работы: Пн-Пт с 10:00 до 20:00, Сб-Вс с 11:00 до 18:00</p>
+                <input type="hidden" name="address" value="г. Москва, ул. Тверская, д. 15, офис 305">
+                <input type="hidden" name="city" value="Москва">
             </div>
             
             <div class="form-group">
                 <label for="notes">Примечание к заказу</label>
-                <textarea name="notes" id="notes" rows="3" class="@error('notes') error @enderror" placeholder="Например: код домофона, предпочтительное время">{{ old('notes') }}</textarea>
+                <textarea name="notes" id="notes" rows="3" class="@error('notes') error @enderror" placeholder="Например: удобное время для самовывоза">{{ old('notes') }}</textarea>
                 @error('notes')
                     <div class="error">{{ $message }}</div>
                 @enderror
@@ -112,7 +100,7 @@
         
         <div class="order-total">
             <strong>Итого:</strong>
-            <strong>{{ number_format($cart->total, 0, '.', ' ') }} руб.</strong>
+            <strong id="checkout-total">{{ number_format($cart->total, 0, '.', ' ') }} руб.</strong>
         </div>
     </div>
 </div>

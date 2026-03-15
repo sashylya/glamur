@@ -74,22 +74,32 @@ class Product extends Model
     }
 
     public function reviews()
-{
-    return $this->hasMany(Review::class);
-}
+    {
+        return $this->hasMany(Review::class);
+    }
 
-public function approvedReviews()
-{
-    return $this->hasMany(Review::class)->where('is_approved', true);
-}
+    public function approvedReviews()
+    {
+        return $this->hasMany(Review::class)->where('is_approved', true);
+    }
 
-public function getAverageRatingAttribute()
-{
-    return $this->approvedReviews()->avg('rating') ?: 0;
-}
+    public function getAverageRatingAttribute()
+    {
+        return $this->approvedReviews()->avg('rating') ?: 0;
+    }
 
-public function getReviewsCountAttribute()
-{
-    return $this->approvedReviews()->count();
-}
+    public function getReviewsCountAttribute()
+    {
+        return $this->approvedReviews()->count();
+    }
+    
+    // метод для уменьшения остатка
+    public function decrementStock($quantity = 1)
+    {
+        if ($this->stock >= $quantity) {
+            $this->stock -= $quantity;
+            return $this->save();
+        }
+        return false;
+    }
 }

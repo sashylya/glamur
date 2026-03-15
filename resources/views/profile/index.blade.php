@@ -6,6 +6,13 @@
 <div class="profile-layout">
     <h1>Личный кабинет</h1>
     
+    {{-- Сообщение об успехе --}}
+    @if(session('success'))
+        <div class="alert-success" style="background: #d4edda; color: #155724; padding: 15px; border-radius: 8px; margin-bottom: 20px;">
+            {{ session('success') }}
+        </div>
+    @endif
+    
     <div class="profile-grid">
         <div class="profile-sidebar">
             <div class="profile-menu">
@@ -32,18 +39,6 @@
                     <tr>
                         <th>Телефон:</th>
                         <td>{{ $user->phone }}</td>
-                    </tr>
-                    @endif
-                    @if($user->address)
-                    <tr>
-                        <th>Адрес:</th>
-                        <td>{{ $user->address }}</td>
-                    </tr>
-                    @endif
-                    @if($user->city)
-                    <tr>
-                        <th>Город:</th>
-                        <td>{{ $user->city }}</td>
                     </tr>
                     @endif
                 </table>

@@ -24,6 +24,15 @@ class CartController extends Controller
     public function index()
     {
         $cart = $this->getCart();
+        
+        // Добавляем вычисляемые поля
+        if ($cart) {
+            $cart->count = $cart->items->sum('quantity');
+            $cart->total = $cart->items->sum(function($item) {
+                return $item->product->price * $item->quantity;
+            });
+        }
+        
         return view('cart.index', compact('cart'));
     }
 
@@ -33,25 +42,9 @@ class CartController extends Controller
             'quantity' => 'required|integer|min:1'
         ]);
 
-        if ($product->stock <= 0) {
-            if ($request->ajax() || $request->wantsJson()) {
-                return response()->json(['success' => false, 'message' => 'Товара нет в наличии'], 422);
-            }
-            return back()->with('error', 'Товара нет в наличии');
-        }
-
         $cart = $this->getCart();
-        $cartItem = $cart->items()->where('product_id', $product->id)->first();
         
-        $currentQuantity = $cartItem ? $cartItem->quantity : 0;
-        $newQuantity = $currentQuantity + $request->quantity;
-
-        if ($newQuantity > $product->stock) {
-            if ($request->ajax() || $request->wantsJson()) {
-                return response()->json(['success' => false, 'message' => 'Недостаточно товара на складе'], 422);
-            }
-            return back()->with('error', 'Недостаточно товара на складе');
-        }
+        $cartItem = $cart->items()->where('product_id', $product->id)->first();
         
         if ($cartItem) {
             $cartItem->increment('quantity', $request->quantity);
@@ -64,13 +57,16 @@ class CartController extends Controller
 
         if ($request->ajax() || $request->wantsJson()) {
             $cart = $this->getCart();
+            $cartTotal = $cart->items->sum(function($item) {
+                return $item->product->price * $item->quantity;
+            });
+            $cartCount = $cart->items->sum('quantity');
+            
             return response()->json([
                 'success' => true,
                 'message' => 'Товар добавлен в корзину',
-                'cartCount' => $cart->items->sum('quantity'),
-                'cartTotal' => $cart->items->sum(function($item) {
-                    return $item->product->price * $item->quantity;
-                })
+                'cartCount' => $cartCount,
+                'cartTotal' => $cartTotal
             ]);
         }
 
@@ -84,14 +80,7 @@ class CartController extends Controller
         ]);
 
         $cart = $this->getCart();
-        $item = $cart->items()->findOrFail($itemId);
-
-        if ($request->quantity > $item->product->stock) {
-            if ($request->ajax() || $request->wantsJson()) {
-                return response()->json(['success' => false, 'message' => 'Недостаточно товара на складе'], 422);
-            }
-            return back()->with('error', 'Недостаточно товара на складе');
-        }
+        $item = $cart->items()->with('product')->findOrFail($itemId);
         
         if ($request->quantity <= 0) {
             $item->delete();
@@ -126,7 +115,7 @@ class CartController extends Controller
         $item = $cart->items()->findOrFail($itemId);
         $item->delete();
 
-        // Пересчитываем корзину после удаления
+        // Пересчитываем корзину
         $cart = $this->getCart();
         $cartTotal = $cart->items->sum(function($item) {
             return $item->product->price * $item->quantity;

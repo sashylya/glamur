@@ -52,26 +52,27 @@ class ProfileController extends BaseController
         /** @var User $user */
         $user = Auth::user();
 
-        $data = $request->validate([
+        // Валидация только тех полей, которые есть в форме
+        $rules = [
             'name' => 'required|string|max:255',
-            'phone' => 'nullable|string',
-            'address' => 'nullable|string',
-            'city' => 'nullable|string',
-            'postal_code' => 'nullable|string',
-            'current_password' => 'nullable|required_with:new_password|current_password',
-            'new_password' => 'nullable|string|min:8|confirmed',
-        ]);
+            'phone' => 'nullable|string|max:20',
+        ];
 
-        $user->fill([
-            'name' => $data['name'],
-            'phone' => $data['phone'],
-            'address' => $data['address'],
-            'city' => $data['city'],
-            'postal_code' => $data['postal_code'],
-        ]);
+        // Добавляем валидацию для пароля только если он передан
+        if ($request->filled('current_password') || $request->filled('new_password')) {
+            $rules['current_password'] = 'required_with:new_password|current_password';
+            $rules['new_password'] = 'required|string|min:8|confirmed';
+        }
 
-        if (isset($data['new_password'])) {
-            $user->password = Hash::make($data['new_password']);
+        $data = $request->validate($rules);
+
+        // Обновляем только имя и телефон
+        $user->name = $data['name'];
+        $user->phone = $data['phone'] ?? null;
+        
+        // Обновляем пароль если передан
+        if ($request->filled('new_password')) {
+            $user->password = Hash::make($request->new_password);
         }
 
         $user->save();

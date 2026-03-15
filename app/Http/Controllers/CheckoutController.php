@@ -4,11 +4,11 @@ namespace App\Http\Controllers;
 
 use App\Models\Cart;
 use App\Models\Order;
-use App\Models\User; // Добавить эту строку
+use App\Models\User;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
-use Illuminate\Support\Facades\Hash; // Добавить эту строку
+use Illuminate\Support\Facades\Hash;
 
 class CheckoutController extends Controller
 {
@@ -29,6 +29,20 @@ class CheckoutController extends Controller
             return redirect()->route('cart.index')->with('error', 'Корзина пуста');
         }
 
+        // ПРОВЕРКА НАЛИЧИЯ ТОВАРОВ ПЕРЕД ПОКАЗОМ ФОРМЫ
+        $unavailableItems = [];
+        foreach ($cart->items as $item) {
+            if ($item->product->stock < $item->quantity) {
+                $unavailableItems[] = "{$item->product->name} (доступно: {$item->product->stock} шт.)";
+            }
+        }
+
+        if (!empty($unavailableItems)) {
+            $itemsList = implode(', ', $unavailableItems);
+            return redirect()->route('cart.index')
+                ->with('error', "Следующие товары отсутствуют в нужном количестве: {$itemsList}. Пожалуйста, уменьшите количество или удалите их из корзины.");
+        }
+
         $user = Auth::user();
         
         return view('checkout.index', compact('cart', 'user'));
@@ -40,6 +54,14 @@ class CheckoutController extends Controller
         
         if (!$cart || $cart->items->isEmpty()) {
             return redirect()->route('cart.index')->with('error', 'Корзина пуста');
+        }
+
+        // ПРОВЕРКА НАЛИЧИЯ ТОВАРОВ ПЕРЕД ОФОРМЛЕНИЕМ
+        foreach ($cart->items as $item) {
+            if ($item->product->stock < $item->quantity) {
+                return redirect()->route('cart.index')
+                    ->with('error', "Товар '{$item->product->name}' отсутствует в нужном количестве. В наличии: {$item->product->stock} шт.");
+            }
         }
 
         $rules = [
@@ -79,10 +101,19 @@ class CheckoutController extends Controller
         DB::beginTransaction();
 
         try {
+            // ПОВТОРНАЯ ПРОВЕРКА НАЛИЧИЯ В ТРАНЗАКЦИИ (на случай, если товар закончился в момент оформления)
+            foreach ($cart->items as $item) {
+                // Обновляем информацию о товаре из базы данных
+                $product = $item->product->fresh();
+                if ($product->stock < $item->quantity) {
+                    throw new \Exception("Товар '{$product->name}' закончился во время оформления заказа. Доступно: {$product->stock} шт.");
+                }
+            }
+
             // Создаем заказ
             $order = Order::create([
                 'user_id' => Auth::id(),
-                $orderNumber = 'ORD-' . strtoupper(uniqid()),
+                'order_number' => 'ORD-' . strtoupper(uniqid()), // Исправлено: было $orderNumber = ...
                 'total_amount' => $cart->total,
                 'first_name' => $data['first_name'],
                 'last_name' => $data['last_name'],
@@ -132,12 +163,12 @@ class CheckoutController extends Controller
         }
     }
 
-   public function success(Order $order)
-{
-    if ($order->user_id !== Auth::id() && (!Auth::user() || !Auth::user()->is_admin)) {
-        abort(403);
-    }
+    public function success(Order $order)
+    {
+        if ($order->user_id !== Auth::id() && (!Auth::user() || !Auth::user()->is_admin)) {
+            abort(403);
+        }
 
-    return view('checkout.success', compact('order'));
-}
+        return view('checkout.success', compact('order'));
+    }
 }
